@@ -2,19 +2,42 @@
  * Requirements: 
  *  - npm install levelup
  *  - npm install leveldown (required, but not marked as dependency)
+ *  - npm install rlp
+ *  - npm install merkle-patricia-tree
  * https://github.com/Level/levelup
  *
+ * Genesis details can be found at 
+ * https://github.com/ethereum/go-ethereum/blob/
+ *   922c1f8f9f7763948da6ed755abd6e1fcaca2cac/tests/
+ *   files/BasicTests/genesishashestest.json#L2
  */
 
- var levelup = require('levelup');
- var db = levelup('~/.ethereum/geth/chaindata');
- 
- // The genesis state root.
-var root = '12582945fc5ad12c3e7b67c4fc37a68fc0d52d995bb7f7291ff41a2739a7ca16';
+var levelup = require('levelup');
+var rlp = require('rlp');
+var trie = require('merkle-patricia-tree');
+var db = levelup('chaindata');
+
+// The genesis state root.
+var stateRoot = 
+  'd7f8974fb5ac78d9ac099b9ad5018bedc2ce0a72dad1827a1709da30580f0544';
+
+// ERROR: AssertionError: Invalid root length. Roots are 32 bytes
+var stateTrie = new trie(db, stateRoot);
 
 // Note: We're doing everything using binary encoding.
-db.get(new Buffer(root, 'hex'), {
+db.get(new Buffer(stateRoot, 'hex'), {
   encoding: 'binary'
 }, function (err, value) {
-  console.log(value);
+  console.log("Printing the entry for the State Root")
+  var decoded = rlp.decode(value);
+  console.log(decoded);
+});
+
+// Gav's address.
+var gav = new Buffer('8a40bfaa73256b60764c1bf40675a99083efb075', 'hex');
+
+trie.get(gav, function (err, val) {
+  console.log("Printing the contents of Gav's address")
+  var decoded = rlp.decode(val);
+  console.log(decoded);
 });
