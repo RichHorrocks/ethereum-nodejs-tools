@@ -21,23 +21,20 @@ var db = levelup('chaindata');
 var stateRoot = 
   'd7f8974fb5ac78d9ac099b9ad5018bedc2ce0a72dad1827a1709da30580f0544';
 
-// ERROR: AssertionError: Invalid root length. Roots are 32 bytes
-var stateTrie = new trie(db, stateRoot);
+var stateTrie = new trie(db, new Buffer(stateRoot, 'hex'));
 
 // Note: We're doing everything using binary encoding.
 db.get(new Buffer(stateRoot, 'hex'), {
-  encoding: 'binary'
+    encoding: 'binary'
 }, function (err, value) {
-  console.log("Printing the entry for the State Root")
-  var decoded = rlp.decode(value);
-  console.log(decoded);
+    console.log("Printing the entry for the state root: ");
+    console.log(rlp.decode(value));
 });
 
 // Gav's address.
 var gav = new Buffer('8a40bfaa73256b60764c1bf40675a99083efb075', 'hex');
 
 trie.get(gav, function (err, val) {
-  console.log("Printing the contents of Gav's address")
-  var decoded = rlp.decode(val);
-  console.log(decoded);
+  console.log("Printing the contents of Gav's address");
+  console.log(rlp.decode(val));
 });
